@@ -1,0 +1,16 @@
+{
+  "name": "minHtml",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node index.js"
+  },
+  "author": "zhouyupeng",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "html-minifier": "^3.5.21"
+  }
+}
