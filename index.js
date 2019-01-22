@@ -1,9 +1,17 @@
-var fs = require('fs');
-var path = require('path');
-var minify = require('html-minifier').minify;
-var distDir=path.join(__dirname,'./dist');//压缩后的目录
-var sourceDir=path.join(__dirname,'./source');//项目源代码
-deleteFolder(distDir);
+let fs = require('fs');
+let path = require('path');
+let minify = require('html-minifier').minify;
+let distDir = path.join(__dirname, './dist'); //压缩后的目录
+let sourceDir = path.join(__dirname, './source'); //项目源代码
+let showCompress = true;
+let minifyJS = showCompress ? {
+  compress: {
+    warnings: false,
+    drop_debugger: true,
+    drop_console: true
+  }
+} : true;//配置压缩js,showCompress为true时压缩代码并去除console,debugger控制台提示，正式发布上线可开启，否则只压缩js
+deleteFolder(distDir); //清楚打包后的目录
 // 清除目录
 function deleteFolder(paths) {
   var files = [];
@@ -128,18 +136,18 @@ function fileDisplay(filePath) {
           } else {
             var isFile = stats.isFile(); //是文件
             var isDir = stats.isDirectory(); //是文件夹
-            if (isFile && /\.htm/.test(filedir)) {//压缩.htm或.html文件
+            if (isFile && /\.htm/.test(filedir)) { //压缩.htm或.html文件
               console.log(filedir);
               fs.readFile(filedir, 'utf8', function (err, data) {
                 if (err) {
                   throw err;
                 }
-                fs.writeFile(filedir, minify(data, {//主要压缩配置
+                fs.writeFile(filedir, minify(data, { //主要压缩配置
                   processScripts: ['text/html'],
                   collapseWhitespace: true,
-                  minifyJS: true,
+                  minifyJS: minifyJS,
                   minifyCSS: true,
-                  removeComments: true, //删除注释，但是会保留script和style中的注释
+                  removeComments: true, //删除注释
                   removeCommentsFromCDATA: true, //从脚本和样式删除的注释
                 }), function () {
                   console.log('success');
