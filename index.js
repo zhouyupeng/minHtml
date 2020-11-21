@@ -11,7 +11,7 @@ let minifyJS = showCompress ? {
     drop_console: true
   }
 } : true;//配置压缩js,showCompress为true时压缩代码并去除console,debugger控制台提示，正式发布上线可开启，否则只压缩js
-deleteFolder(distDir); //清楚打包后的目录
+deleteFolder(distDir); //清除打包后的目录
 // 清除目录
 function deleteFolder(paths) {
   var files = [];
