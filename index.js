@@ -1,6 +1,10 @@
+const { log } = require('console');
 let fs = require('fs');
 let path = require('path');
+let UglifyJS = require("uglify-js");
 let minify = require('html-minifier').minify;
+let CleanCSS = require('clean-css');
+
 let distDir = path.join(__dirname, './dist'); //压缩后的目录
 let sourceDir = path.join(__dirname, './source'); //项目源代码
 let showCompress = true;
@@ -137,22 +141,13 @@ function fileDisplay(filePath) {
             var isFile = stats.isFile(); //是文件
             var isDir = stats.isDirectory(); //是文件夹
             if (isFile && /\.htm/.test(filedir)) { //压缩.htm或.html文件
-              console.log(filedir);
-              fs.readFile(filedir, 'utf8', function (err, data) {
-                if (err) {
-                  throw err;
-                }
-                fs.writeFile(filedir, minify(data, { //主要压缩配置
-                  processScripts: ['text/html'],
-                  collapseWhitespace: true,
-                  minifyJS: minifyJS,
-                  minifyCSS: true,
-                  removeComments: true, //删除注释
-                  removeCommentsFromCDATA: true, //从脚本和样式删除的注释
-                }), function () {
-                  console.log('success');
-                });
-              });
+              miniHtml(filedir)
+            }
+            if (isFile && /\.js$/.test(filedir)) { //压缩js文件
+              miniJs(filedir)
+            }
+            if (isFile && /\.css$/.test(filedir)) { //压缩css文件
+              miniCss(filedir)
             }
             if (isDir) {
               fileDisplay(filedir); //递归，如果是文件夹，就继续遍历该文件夹下面的文件
@@ -161,5 +156,57 @@ function fileDisplay(filePath) {
         })
       });
     }
+  });
+}
+
+function miniCss(filedir){
+  console.log(filedir)
+  fs.readFile(filedir, 'utf8', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    let options = { /* options */ };
+    let result = new CleanCSS(options).minify(data);
+    if(result.warnings.length>0){//压缩错误处理
+      console.log(filedir,result.warnings);
+    }else{
+      fs.writeFile(filedir,result.styles, function () {
+        console.log(filedir,'success');
+      });
+    }
+   
+  });
+}
+function miniJs(filedir){
+  fs.readFile(filedir, 'utf8', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    let result = UglifyJS.minify(data);
+    if (!result.code) {//压缩错误处理
+      console.log(filedir, result.error);
+    } else {
+      fs.writeFile(filedir,result.code , function () {
+        console.log(filedir,'success');
+      });
+    }
+  });
+}
+function miniHtml(filedir){
+  fs.readFile(filedir, 'utf8', function (err, data) {
+    if (err) {
+      throw err;
+    }
+    console.log(filedir);
+    fs.writeFile(filedir, minify(data, { //主要压缩配置
+      processScripts: ['text/html'],
+      collapseWhitespace: true,
+      minifyJS: minifyJS,
+      minifyCSS: true,
+      removeComments: true, //删除注释
+      removeCommentsFromCDATA: true, //从脚本和样式删除的注释
+    }), function () {
+      console.log(filedir,'success');
+    });
   });
 }
